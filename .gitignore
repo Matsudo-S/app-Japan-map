@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+# heavy file
+/public/*geojson
 # production
 /build
 

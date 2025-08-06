@@ -1,0 +1,236 @@
+.prefecture-map-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.prefecture-map-header {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.prefecture-map-header h2 {
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.hovered-prefecture-info {
+  background: #f8f9fa;
+  color: #495057;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-block;
+  border: 2px solid #e9ecef;
+}
+
+.prefecture-map-wrapper {
+  width: 100%;
+  height: 400px;
+  background: #FFFFF0;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.prefecture-map-svg {
+  width: 120%;
+  height: 150%;
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  transform: translateX(-20%);
+}
+
+.prefecture-path {
+  transition: all 0.2s ease-in-out;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
+  z-index: 1;
+}
+
+.prefecture-path:hover {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.prefecture-path.selected {
+  filter: drop-shadow(2px 2px 6px rgba(108, 92, 231, 0.5));
+}
+
+.prefecture-path.selected:hover {
+  filter: drop-shadow(3px 3px 8px rgba(108, 92, 231, 0.7));
+}
+
+/* 沖縄接続線のスタイル */
+.okinawa-connection {
+  pointer-events: none;
+  z-index: 0;
+}
+
+.okinawa-connection line {
+  animation: dashMove 2s linear infinite;
+}
+
+@keyframes dashMove {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 20;
+  }
+}
+
+.prefecture-legend {
+  background: #FFFFF0;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #DBE4C9;
+}
+
+.prefecture-legend h3 {
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease-in-out;
+}
+
+.legend-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.legend-item span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .prefecture-map-container {
+    padding: 15px;
+  }
+  
+  .prefecture-map-header h2 {
+    font-size: 24px;
+  }
+  
+  .prefecture-map-wrapper {
+    height: 400px;
+  }
+  
+  .legend-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .legend-item {
+    padding: 6px 10px;
+  }
+  
+  .legend-item span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .prefecture-map-container {
+    padding: 10px;
+  }
+  
+  .prefecture-map-header h2 {
+    font-size: 20px;
+  }
+  
+  .prefecture-map-wrapper {
+    height: 300px;
+  }
+  
+  .hovered-prefecture-info {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .prefecture-legend {
+    padding: 15px;
+  }
+  
+  .prefecture-legend h3 {
+    font-size: 16px;
+  }
+}
+
+/* 吹き出しツールチップのスタイル */
+.prefecture-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+}
+
+.tooltip-content {
+  position: relative;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid rgba(0, 0, 0, 0.8);
+}
+
+/* ローディングメッセージのスタイル */
+.loading-message {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 40px 20px;
+  background: #FFFFF0;
+  border-radius: 8px;
+  border: 2px solid #DBE4C9;
+}

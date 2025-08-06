@@ -45,22 +45,51 @@ export const coordinatesToSVGPath = (coordinates, bounds, prefName = '') => {
     const outerRing = polygons[0];
     
     // デバッグ用：九州エリアの座標数を確認
-    if (['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県'].includes(prefName)) {
+    if (['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '徳島県', '香川県', '愛媛県', '高知県', '沖縄県'].includes(prefName)) {
       console.log(`${prefName} coordinates count:`, outerRing.length);
     }
     
-    outerRing.forEach((coord, index) => {
-      const [lng, lat] = coord;
-      const { x, y } = convertLatLngToSVG(lng, lat, bounds, 450, 500, prefName);
+    // 座標数が少ない場合の処理を改善
+    if (outerRing.length < 10) {
+      console.warn(`${prefName}: 座標数が少なすぎます (${outerRing.length}個)`);
       
-      if (index === 0) {
-        path += `M${x.toFixed(2)},${y.toFixed(2)}`;
-      } else {
-        path += ` L${x.toFixed(2)},${y.toFixed(2)}`;
+      if (outerRing.length >= 3) {
+        // 既存の座標を使用してパスを作成
+        outerRing.forEach((coord, index) => {
+          const [lng, lat] = coord;
+          const { x, y } = convertLatLngToSVG(lng, lat, bounds, 450, 500, prefName);
+          
+          if (index === 0) {
+            path += `M${x.toFixed(2)},${y.toFixed(2)}`;
+          } else {
+            path += ` L${x.toFixed(2)},${y.toFixed(2)}`;
+          }
+        });
+        path += ' Z';
+      } else if (outerRing.length > 0) {
+        // 座標が3個未満の場合は、都道府県の中心位置に小さな円を描画
+        const centerCoord = outerRing[0];
+        const [lng, lat] = centerCoord;
+        const { x, y } = convertLatLngToSVG(lng, lat, bounds, 450, 500, prefName);
+        const radius = 8; // 小さな円の半径
+        
+        path = `M${(x - radius).toFixed(2)},${y.toFixed(2)} A${radius},${radius} 0 1,1 ${(x + radius).toFixed(2)},${y.toFixed(2)} A${radius},${radius} 0 1,1 ${(x - radius).toFixed(2)},${y.toFixed(2)} Z`;
       }
-    });
-    
-    path += ' Z';
+    } else {
+      // 通常の処理（座標数が十分な場合）
+      outerRing.forEach((coord, index) => {
+        const [lng, lat] = coord;
+        const { x, y } = convertLatLngToSVG(lng, lat, bounds, 450, 500, prefName);
+        
+        if (index === 0) {
+          path += `M${x.toFixed(2)},${y.toFixed(2)}`;
+        } else {
+          path += ` L${x.toFixed(2)},${y.toFixed(2)}`;
+        }
+      });
+      
+      path += ' Z';
+    }
   }
   
   return path;
@@ -73,6 +102,55 @@ export const getJapanBounds = () => ({
   minLng: 123.0,
   maxLng: 146.0
 });
+
+// 不足している都道府県の座標データを補完する関数
+const getFallbackCoordinates = (prefName) => {
+  const fallbackData = {
+    // 四国地方
+    '徳島県': [
+      [134.0, 34.0], [134.2, 34.0], [134.2, 33.8], [134.0, 33.8], [134.0, 34.0]
+    ],
+    '香川県': [
+      [134.0, 34.2], [134.2, 34.2], [134.2, 34.0], [134.0, 34.0], [134.0, 34.2]
+    ],
+    '愛媛県': [
+      [132.8, 34.0], [133.2, 34.0], [133.2, 33.6], [132.8, 33.6], [132.8, 34.0]
+    ],
+    '高知県': [
+      [133.0, 33.6], [133.4, 33.6], [133.4, 33.2], [133.0, 33.2], [133.0, 33.6]
+    ],
+    
+    // 九州地方
+    '福岡県': [
+      [130.4, 33.6], [130.8, 33.6], [130.8, 33.4], [130.4, 33.4], [130.4, 33.6]
+    ],
+    '佐賀県': [
+      [130.2, 33.4], [130.6, 33.4], [130.6, 33.2], [130.2, 33.2], [130.2, 33.4]
+    ],
+    '長崎県': [
+      [129.8, 33.2], [130.4, 33.2], [130.4, 32.8], [129.8, 32.8], [129.8, 33.2]
+    ],
+    '熊本県': [
+      [130.6, 33.0], [131.0, 33.0], [131.0, 32.6], [130.6, 32.6], [130.6, 33.0]
+    ],
+    '大分県': [
+      [131.0, 33.4], [131.4, 33.4], [131.4, 33.0], [131.0, 33.0], [131.0, 33.4]
+    ],
+    '宮崎県': [
+      [131.2, 32.8], [131.6, 32.8], [131.6, 32.4], [131.2, 32.4], [131.2, 32.8]
+    ],
+    '鹿児島県': [
+      [130.4, 32.4], [131.0, 32.4], [131.0, 31.8], [130.4, 31.8], [130.4, 32.4]
+    ],
+    
+    // 沖縄県（実際の位置に近い座標）
+    '沖縄県': [
+      [127.8, 26.5], [128.2, 26.5], [128.2, 26.3], [127.8, 26.3], [127.8, 26.5]
+    ]
+  };
+  
+  return fallbackData[prefName] || null;
+};
 
 // GeoJSONファイルをロードして処理する関数
 export const loadAndProcessGeoJSON = async () => {
@@ -87,10 +165,19 @@ export const loadAndProcessGeoJSON = async () => {
       const prefName = feature.properties.name;
       const coordinates = feature.geometry.coordinates;
       
-      const svgPath = coordinatesToSVGPath(coordinates, bounds, prefName);
+      let svgPath = coordinatesToSVGPath(coordinates, bounds, prefName);
+      
+      // 座標数が少ない場合、フォールバックデータを使用
+      if (svgPath === '' || svgPath.includes('A8,8')) {
+        const fallbackCoords = getFallbackCoordinates(prefName);
+        if (fallbackCoords) {
+          console.log(`${prefName}: フォールバック座標データを使用`);
+          svgPath = coordinatesToSVGPath([fallbackCoords], bounds, prefName);
+        }
+      }
       
       // デバッグ用：九州エリアのSVGパスを確認
-      if (['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県'].includes(prefName)) {
+      if (['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '徳島県', '香川県', '愛媛県', '高知県', '沖縄県'].includes(prefName)) {
         console.log(`${prefName} SVG Path:`, svgPath);
       }
       

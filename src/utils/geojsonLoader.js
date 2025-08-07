@@ -200,7 +200,7 @@ const getFallbackCoordinates = (prefName) => {
 // GeoJSONファイルをロードして処理する関数
 export const loadAndProcessGeoJSON = async () => {
   try {
-    const response = await fetch('/optimized_prefectures.geojson');
+    const response = await fetch('/prefectures.geojson');
     const geojsonData = await response.json();
     
     const bounds = getJapanBounds();
